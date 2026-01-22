@@ -14,24 +14,16 @@ import os
 import random
 
 # --- CONFIGURACIÓN ---
-SEED = 42 
 BATCH_SIZE = 16 
 EPOCHS = 3      
 MAX_LEN = 256   
 LR = 2e-5       
 
 # Rutas
-DATA_PATH = "/content/drive/MyDrive/SFT/SFT_PR/Benchmarking_Code/codebert_train_10.csv"
-MODEL_SAVE_PATH = "/content/drive/MyDrive/SFT/SFT_PR/Benchmarking_Code/models/codebert_finetuned"
+DATA_PATH = "./codebert_train_10.csv"
+MODEL_SAVE_PATH = "./codebert_finetuned"
 
 os.makedirs(os.path.dirname(MODEL_SAVE_PATH), exist_ok=True)
-
-def set_seed(seed_value=42):
-    random.seed(seed_value)
-    np.random.seed(seed_value)
-    torch.manual_seed(seed_value)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(seed_value)
 
 # --- 1. PREPARACIÓN DE DATOS ---
 def prepare_data(df, tokenizer):
@@ -67,7 +59,7 @@ def train():
     print(f"   Total filas: {len(df)}")
     
     # Split 80/20
-    train_df, test_df = train_test_split(df, test_size=0.2, random_state=SEED, stratify=df['label'])
+    train_df, test_df = train_test_split(df, test_size=0.2, stratify=df['label'])
     print(f"   Train: {len(train_df)} | Test: {len(test_df)}")
 
     print("2. Cargando Tokenizer...")
