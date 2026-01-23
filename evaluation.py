@@ -8,8 +8,8 @@ NUM_RUNS = 15  # CAMBIAR: Número de veces que repetiremos el experimento
 
 PYTHON_EXE = sys.executable
 results = {
-    "ASTNN": {"f1": [], "precision": [], "recall": []},
-    "CodeBERT": {"f1": [], "precision": [], "recall": []}
+    "ASTNN": {"f1": [], "precision": [], "recall": [], "time": []}, # Añadido "time"
+    "CodeBERT": {"f1": [], "precision": [], "recall": [], "time": []} # Añadido "time"
 }
 
 def run_script(script_path, work_dir, model_name):
@@ -53,6 +53,7 @@ for i in range(1, NUM_RUNS + 1):
         results["ASTNN"]["f1"].append(astnn_metrics["f1"])
         results["ASTNN"]["precision"].append(astnn_metrics["precision"])
         results["ASTNN"]["recall"].append(astnn_metrics["recall"])
+        results["ASTNN"]["time"].append(astnn_metrics["avg_inference_time"])
 
     # 2. CodeBERT
     cb_metrics = run_script("train_codebert.py", "codebert", "CodeBERT")
@@ -60,21 +61,21 @@ for i in range(1, NUM_RUNS + 1):
         results["CodeBERT"]["f1"].append(cb_metrics["f1"])
         results["CodeBERT"]["precision"].append(cb_metrics["precision"])
         results["CodeBERT"]["recall"].append(cb_metrics["recall"])
+        results["CodeBERT"]["time"].append(cb_metrics["avg_inference_time"])
 
-print("\n\n📊 === INFORME FINAL DE RESULTADOS ===")
+print("\n\n=== INFORME FINAL DE RESULTADOS ===")
 
 for model in ["ASTNN", "CodeBERT"]:
     print(f"\n🔹 Modelo: {model}")
     if len(results[model]["f1"]) > 0:
         mean_f1 = np.mean(results[model]["f1"])
         std_f1 = np.std(results[model]["f1"])
-        mean_p = np.mean(results[model]["precision"])
-        mean_r = np.mean(results[model]["recall"])
+        mean_time = np.mean(results[model]["time"]) # Segundos
+        std_time = np.std(results[model]["time"])
         
-        print(f"   Ejecuciones exitosas: {len(results[model]['f1'])}")
-        print(f"   F1-Score  : {mean_f1:.4f} ± {std_f1:.4f}")
-        print(f"   Precision : {mean_p:.4f}")
-        print(f"   Recall    : {mean_r:.4f}")
+        print(f"   F1-Score      : {mean_f1:.4f} ± {std_f1:.4f}")
+        print(f"   Inferencia (s): {mean_time:.6f}s ± {std_time:.6f}s") # 6 decimales porque es muy rápido
+        print(f"   Inferencia (ms): {mean_time * 1000:.2f}ms") # Dato más legible para humanos
     else:
         print("No hay datos disponibles.")
 

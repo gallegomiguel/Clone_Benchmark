@@ -97,47 +97,49 @@ if __name__ == '__main__':
                 loss.backward()
                 optimizer.step()
         print("Testing-%d..."%t)
-        # testing procedure
-        predicts = []
-        trues = []
-        total_loss = 0.0
-        total = 0.0
-        i = 0
-        while i < len(test_data_t):
-            batch = get_batch(test_data_t, i, BATCH_SIZE)
-            i += BATCH_SIZE
-            test1_inputs, test2_inputs, test_labels = batch
-            if USE_GPU:
-                test_labels = test_labels.cuda()
 
-            model.batch_size = len(test_labels)
-            model.hidden = model.init_hidden()
+
+    print("\nEvaluando en Test Set...")
+    predicts = []
+    trues = []
+    i = 0
+    start_test = time.time()
+    
+    while i < len(test_data):
+        # Usamos el generador de batch (asegurate de que get_batch funciona con tu test_data)
+        batch = get_batch(test_data, i, BATCH_SIZE)
+        i += BATCH_SIZE
+        test1_inputs, test2_inputs, test_labels = batch
+        
+        if USE_GPU:
+            test_labels = test_labels.cuda()
+
+        model.batch_size = len(test_labels)
+        model.hidden = model.init_hidden()
+        
+        with torch.no_grad(): # no gradientes para ir más rápido
             output = model(test1_inputs, test2_inputs)
 
-            loss = loss_function(output, Variable(test_labels))
+        predicted = (output.data > 0.5).cpu().numpy()
+        predicts.extend(predicted)
+        trues.extend(test_labels.cpu().numpy())
 
-            # calc testing acc
-            predicted = (output.data > 0.5).cpu().numpy()
-            predicts.extend(predicted)
-            trues.extend(test_labels.cpu().numpy())
-            total += len(test_labels)
-            total_loss += loss.item() * len(test_labels)
-        if lang == 'java':
-            weights = [0, 0.005, 0.001, 0.002, 0.010, 0.982]
-            p, r, f, _ = precision_recall_fscore_support(trues, predicts, average='binary')
-            precision += weights[t] * p
-            recall += weights[t] * r
-            f1 += weights[t] * f
-            print("Type-" + str(t) + ": " + str(p) + " " + str(r) + " " + str(f))
-        else:
-            precision, recall, f1, _ = precision_recall_fscore_support(trues, predicts, average='binary')
+    end_test = time.time()
+    
+    total_test_time = end_test - start_test
+    avg_inference_time = total_test_time / len(test_data) # Segundos por muestra
+    
+    p, r, f1, _ = precision_recall_fscore_support(trues, predicts, average='binary')
+    
+    print(f"Test completado en {total_test_time:.2f}s")
+    print(f"Tiempo medio por muestra: {avg_inference_time:.6f}s")
 
     import json
-
     metrics = {
         "model": "ASTNN",
-        "precision": precision,
-        "recall": recall,
-        "f1": f1
+        "precision": p,
+        "recall": r,
+        "f1": f1,
+        "avg_inference_time": avg_inference_time
     }
     print(f"__DATA_JSON__{json.dumps(metrics)}")

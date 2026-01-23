@@ -128,21 +128,23 @@ def train():
         preds = np.argmax(logits, axis=1).flatten()
         predictions.extend(preds)
         true_labels.extend(label_ids)
-        
+    
     test_time = time.time() - t0_test
-    print(f"   Tiempo de Inferencia: {test_time:.2f}s")
+    avg_inference_time = test_time / len(test_dataloader.dataset)
+    
+    print(f"   Tiempo de Inferencia Total: {test_time:.2f}s")
+    print(f"   Tiempo por muestra: {avg_inference_time:.6f}s")
 
-    # Métricas
     acc = accuracy_score(true_labels, predictions)
     precision, recall, f1, _ = precision_recall_fscore_support(true_labels, predictions, average='binary')
-    
     import json
     metrics = {
         "model": "CodeBERT",
         "precision": precision,
         "recall": recall,
         "f1": f1,
-        "accuracy": acc 
+        "accuracy": acc,
+        "avg_inference_time": avg_inference_time
     }
     print(f"__DATA_JSON__{json.dumps(metrics)}")
 

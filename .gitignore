@@ -2,6 +2,7 @@ __pycache__/
 .venv/
 models/
 dev/
+test/
 *.csv
 *.pkl
 *.tsv
