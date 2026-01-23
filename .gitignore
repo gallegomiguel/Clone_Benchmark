@@ -1,4 +1,6 @@
-__python_cache__/
+__pycache__/
+.venv/
+.models/
 *.csv
 *.pkl
 *.tsv

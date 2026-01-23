@@ -126,7 +126,7 @@ if __name__ == '__main__':
             precision, recall, f1, _ = precision_recall_fscore_support(trues, predicts, average='binary')
 
     import json
-    # Imprimimos una línea especial que evaluation.py buscará
+
     metrics = {
         "model": "ASTNN",
         "precision": precision,
