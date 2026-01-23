@@ -1,0 +1,12 @@
+torch>=1.7.0
+torchvision
+pandas
+numpy
+scikit-learn
+javalang>=0.13.0
+gensim>=3.8.0
+pycparser
+transformers>=4.0.0
+tokenizers
+tqdm
+click

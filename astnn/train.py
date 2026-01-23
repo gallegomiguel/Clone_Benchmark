@@ -36,7 +36,7 @@ if __name__ == '__main__':
     if lang == 'java':
         categories = 5
     print("Train for ", str.upper(lang))
-    train_data = pd.read_pickle(root+lang+'/train/blocks.pkl').sample(frac=1)
+    train_data = pd.read_pickle(root+lang+'/train/blocks_10percent.pkl').sample(frac=1)
     test_data = pd.read_pickle(root+lang+'/test/blocks.pkl').sample(frac=1)
 
     word2vec = Word2Vec.load(root+lang+"/train/embedding/node_w2v_128").wv
@@ -125,4 +125,12 @@ if __name__ == '__main__':
         else:
             precision, recall, f1, _ = precision_recall_fscore_support(trues, predicts, average='binary')
 
-    print("Total testing results(P,R,F1):%.3f, %.3f, %.3f" % (precision, recall, f1))
+    import json
+    # Imprimimos una línea especial que evaluation.py buscará
+    metrics = {
+        "model": "ASTNN",
+        "precision": precision,
+        "recall": recall,
+        "f1": f1
+    }
+    print(f"__DATA_JSON__{json.dumps(metrics)}")

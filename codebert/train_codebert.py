@@ -4,16 +4,14 @@ import time
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support
-# --- CORRECCIÓN AQUÍ: Quitamos AdamW de transformers ---
 from transformers import RobertaTokenizer, RobertaForSequenceClassification, get_linear_schedule_with_warmup
-# --- Y lo traemos de PyTorch ---
 from torch.optim import AdamW
 from torch.utils.data import DataLoader, TensorDataset, RandomSampler, SequentialSampler
 from tqdm import tqdm
 import os
 import random
 
-# --- CONFIGURACIÓN ---
+# --- CONFIGURACIÓN --- 
 BATCH_SIZE = 16 
 EPOCHS = 3      
 MAX_LEN = 256   
@@ -21,7 +19,7 @@ LR = 2e-5
 
 # Rutas
 DATA_PATH = "./codebert_train_10.csv"
-MODEL_SAVE_PATH = "./codebert_finetuned"
+MODEL_SAVE_PATH = "./models/codebert_finetuned"
 
 os.makedirs(os.path.dirname(MODEL_SAVE_PATH), exist_ok=True)
 
@@ -48,7 +46,6 @@ def train():
     print(f"   Dispositivo: {device}")
     
     print("1. Cargando datos...")
-    # Leemos el CSV generado (asegúrate de que la ruta sea correcta)
     try:
         df = pd.read_csv(DATA_PATH)
     except FileNotFoundError:
@@ -59,7 +56,7 @@ def train():
     print(f"   Total filas: {len(df)}")
     
     # Split 80/20
-    train_df, test_df = train_test_split(df, test_size=0.2, stratify=df['label'])
+    train_df, test_df = train_test_split(df, test_size=0.2, random_state=None, stratify=df['label'])
     print(f"   Train: {len(train_df)} | Test: {len(test_df)}")
 
     print("2. Cargando Tokenizer...")
@@ -146,11 +143,17 @@ def train():
     acc = accuracy_score(true_labels, predictions)
     precision, recall, f1, _ = precision_recall_fscore_support(true_labels, predictions, average='binary')
     
-    print("\nResultados CodeBERT (Clase Positiva = CLON):")
-    print(f"   Accuracy: {acc:.4f}")
-    print(f"   F1-Score: {f1:.4f}")
-    print(f"   Precision: {precision:.4f}")
-    print(f"   Recall:    {recall:.4f}")
+    # --- AÑADIR ESTO AL FINAL DE codebert/train.py (dentro de main o al final) ---
+    import json
+    # Asumiendo que tienes las variables precision, recall, f1 calculadas
+    metrics = {
+        "model": "CodeBERT",
+        "precision": precision,
+        "recall": recall,
+        "f1": f1,
+        "accuracy": acc 
+    }
+    print(f"__DATA_JSON__{json.dumps(metrics)}")
 
 if __name__ == '__main__':
     train()
