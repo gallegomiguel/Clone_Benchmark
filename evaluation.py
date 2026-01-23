@@ -13,9 +13,9 @@ results = {
 }
 
 def run_script(script_path, work_dir, model_name):
-    print(f"🚀 Ejecutando {model_name} (En: {work_dir})...")
+    print(f"Ejecutando {model_name}...")
     process = subprocess.Popen(
-        [PYTHON_EXE, script_path, "--lang", "java"],
+        [PYTHON_EXE, "-u", script_path, "--lang", "java"],
         cwd=work_dir,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -41,8 +41,7 @@ def run_script(script_path, work_dir, model_name):
         print(process.stderr.read())
         return None
 
-# --- BUCLE PRINCIPAL ---
-print(f"--- INICIANDO BENCHMARK ({NUM_RUNS} EJECUCIONES) ---\n")
+print(f"--- INICIANDO BENCHMARK DE {NUM_RUNS} EJECUCIONES ---")
 
 for i in range(1, NUM_RUNS + 1):
     print(f"\n=== VUELTA {i}/{NUM_RUNS} ===")
@@ -70,12 +69,12 @@ for model in ["ASTNN", "CodeBERT"]:
     if len(results[model]["f1"]) > 0:
         mean_f1 = np.mean(results[model]["f1"])
         std_f1 = np.std(results[model]["f1"])
-        mean_time = np.mean(results[model]["time"]) # Segundos
+        mean_time = np.mean(results[model]["time"])
         std_time = np.std(results[model]["time"])
         
         print(f"   F1-Score      : {mean_f1:.4f} ± {std_f1:.4f}")
-        print(f"   Inferencia (s): {mean_time:.6f}s ± {std_time:.6f}s") # 6 decimales porque es muy rápido
-        print(f"   Inferencia (ms): {mean_time * 1000:.2f}ms") # Dato más legible para humanos
+        print(f"   Inferencia (s): {mean_time:.6f}s ± {std_time:.6f}s")
+        print(f"   Inferencia (ms): {mean_time * 1000:.2f}ms")
     else:
         print("No hay datos disponibles.")
 

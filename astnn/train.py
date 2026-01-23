@@ -129,7 +129,8 @@ if __name__ == '__main__':
     total_test_time = end_test - start_test
     avg_inference_time = total_test_time / len(test_data) # Segundos por muestra
     
-    p, r, f1, _ = precision_recall_fscore_support(trues, predicts, average='binary')
+    binary_trues = [1 if t > 0 else 0 for t in trues]
+    p, r, f1, _ = precision_recall_fscore_support(binary_trues, predicts, average='binary')
     
     print(f"Test completado en {total_test_time:.2f}s")
     print(f"Tiempo medio por muestra: {avg_inference_time:.6f}s")

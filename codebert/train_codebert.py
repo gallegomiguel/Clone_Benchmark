@@ -10,6 +10,8 @@ from torch.utils.data import DataLoader, TensorDataset, RandomSampler, Sequentia
 from tqdm import tqdm
 import os
 import random
+from transformers import logging
+logging.set_verbosity_error() # Solo avisa si explota, ignora los warnings
 
 BATCH_SIZE = 16 
 EPOCHS = 3      
@@ -83,9 +85,11 @@ def train():
         total_loss = 0
         model.train()
 
-        progress_bar = tqdm(train_dataloader, desc="Training")
-        
-        for step, batch in enumerate(progress_bar):
+        print(f"   [Epoch {epoch_i + 1}] Iniciando batches...")
+        #progress_bar = tqdm(train_dataloader, desc="Training")
+
+        for step, batch in enumerate(train_dataloader):
+            #for step, batch in enumerate(progress_bar):
             b_input_ids = batch[0].to(device)
             b_input_mask = batch[1].to(device)
             b_labels = batch[2].to(device)
@@ -99,7 +103,9 @@ def train():
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             optimizer.step()
             
-            progress_bar.set_postfix({'loss': loss.item()})
+            #progress_bar.set_postfix({'loss': loss.item()})
+            if step % 50 == 0 and step > 0:
+                print(f"   [Epoch {epoch_i + 1}] Batch {step}/{len(train_dataloader)} - Loss: {loss.item():.4f}")
 
         avg_train_loss = total_loss / len(train_dataloader)
         training_time = time.time() - t0
@@ -114,7 +120,11 @@ def train():
     predictions , true_labels = [], []
     
     t0_test = time.time()
-    for batch in tqdm(test_dataloader, desc="Testing"):
+
+    print(f"   Procesando {len(test_dataloader)} batches de test...", flush=True)
+    
+    for step, batch in enumerate(test_dataloader):
+        #for batch in tqdm(test_dataloader, desc="Testing"):
         batch = tuple(t.to(device) for t in batch)
         b_input_ids, b_input_mask, b_labels = batch
         
@@ -128,6 +138,9 @@ def train():
         preds = np.argmax(logits, axis=1).flatten()
         predictions.extend(preds)
         true_labels.extend(label_ids)
+
+        if step % 50 == 0 and step > 0:
+             print(f"   [Test] Batch {step}/{len(test_dataloader)} procesado...", flush=True)
     
     test_time = time.time() - t0_test
     avg_inference_time = test_time / len(test_dataloader.dataset)
@@ -146,7 +159,7 @@ def train():
         "accuracy": acc,
         "avg_inference_time": avg_inference_time
     }
-    print(f"__DATA_JSON__{json.dumps(metrics)}")
+    print(f"__DATA_JSON__{json.dumps(metrics)}", flush=True)
 
 if __name__ == '__main__':
     train()
