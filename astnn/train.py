@@ -7,6 +7,7 @@ from gensim.models.word2vec import Word2Vec
 from model import BatchProgramCC
 from torch.autograd import Variable
 from sklearn.metrics import precision_recall_fscore_support
+from sklearn.model_selection import train_test_split
 from config import *
 warnings.filterwarnings('ignore')
 
@@ -36,8 +37,14 @@ if __name__ == '__main__':
     if lang == 'java':
         categories = 5
     print("Train for ", str.upper(lang))
-    train_data = pd.read_pickle(root+lang+'/train/blocks_10percent.pkl').sample(frac=1)
-    test_data = pd.read_pickle(root+lang+'/test/blocks.pkl').sample(frac=1)
+
+    all_data = pd.read_pickle(root+lang+'/train/blocks_10percent.pkl')
+    train_data, test_data = train_test_split(all_data, test_size=0.2, random_state=42)
+    train_data = train_data.sample(frac=1)
+    print(f"Data Split -> Train: {len(train_data)} | Test: {len(test_data)}")
+
+    # train_data = pd.read_pickle(root+lang+'/train/blocks_10percent.pkl').sample(frac=1)
+    # test_data = pd.read_pickle(root+lang+'/test/blocks.pkl').sample(frac=1)
 
     word2vec = Word2Vec.load(root+lang+"/train/embedding/node_w2v_128").wv
     MAX_TOKENS = word2vec.vectors.shape[0]

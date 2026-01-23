@@ -11,19 +11,16 @@ from tqdm import tqdm
 import os
 import random
 
-# --- CONFIGURACIÓN --- 
 BATCH_SIZE = 16 
 EPOCHS = 3      
 MAX_LEN = 256   
 LR = 2e-5       
 
-# Rutas
 DATA_PATH = "./codebert_train_10.csv"
-MODEL_SAVE_PATH = "./models/codebert_finetuned"
+MODEL_SAVE_PATH = "./codebert_finetuned"
 
 os.makedirs(os.path.dirname(MODEL_SAVE_PATH), exist_ok=True)
 
-# --- 1. PREPARACIÓN DE DATOS ---
 def prepare_data(df, tokenizer):
     print("   Tokenizando datos... (Esto puede tardar un poco)")
     inputs = tokenizer(
@@ -38,7 +35,6 @@ def prepare_data(df, tokenizer):
     dataset = TensorDataset(inputs['input_ids'], inputs['attention_mask'], labels)
     return dataset
 
-# --- 2. FUNCIÓN DE ENTRENAMIENTO ---
 def train():
     print(f"--- INICIANDO CODEBERT (Batch: {BATCH_SIZE}, Len: {MAX_LEN}) ---")
     
@@ -55,8 +51,7 @@ def train():
     df = df.dropna().reset_index(drop=True)
     print(f"   Total filas: {len(df)}")
     
-    # Split 80/20
-    train_df, test_df = train_test_split(df, test_size=0.2, random_state=None, stratify=df['label'])
+    train_df, test_df = train_test_split(df, test_size=0.2, random_state=42, stratify=df['label'])
     print(f"   Train: {len(train_df)} | Test: {len(test_df)}")
 
     print("2. Cargando Tokenizer...")
@@ -76,8 +71,7 @@ def train():
         output_hidden_states=False,
     )
     model.to(device)
-    
-    # Optimizador corregido
+
     optimizer = AdamW(model.parameters(), lr=LR, eps=1e-8)
     
     print(f"\n4. ¡ENTRENANDO! ({EPOCHS} Épocas)")
@@ -114,7 +108,6 @@ def train():
 
     print(f"\n=== ENTRENAMIENTO FINALIZADO. Tiempo Total: {time.time() - total_start_time:.2f}s ===")
 
-    # --- 3. PREDICCIÓN ---
     print("\n5. EJECUTANDO PREDICCIÓN EN TEST SET...")
     model.eval()
     
@@ -143,9 +136,7 @@ def train():
     acc = accuracy_score(true_labels, predictions)
     precision, recall, f1, _ = precision_recall_fscore_support(true_labels, predictions, average='binary')
     
-    # --- AÑADIR ESTO AL FINAL DE codebert/train.py (dentro de main o al final) ---
     import json
-    # Asumiendo que tienes las variables precision, recall, f1 calculadas
     metrics = {
         "model": "CodeBERT",
         "precision": precision,
