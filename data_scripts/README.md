@@ -1,5 +1,5 @@
-### clone_chart.py
-Usado para la creación de los elementos gráficos e información concisa del número de pares de código del *dataset* antes y después de la reducción del 10%.
+### charts.py
+Usado para la creación de los elementos gráficos e información concisa del número de pares de código del *dataset* antes y después de la reducción al 10%.
 
 ### reduce_dataset.py
 Usado para el recorte del *dataset* de **BigCloneBench** (BCB) para la viabilidad del experimento. Se han mantenido las frecuencias relativas de cada tipo de clon a las recogidas en ASTNN.
